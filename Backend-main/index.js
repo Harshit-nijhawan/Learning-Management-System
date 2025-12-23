@@ -44,7 +44,10 @@ app.use(
 
       // Clean the origin to ensure no trailing slash issues for comparison
       const cleanOrigin = origin.replace(/\/$/, "");
-      const isAllowed = allowedOrigins.some(o => o.replace(/\/$/, "") === cleanOrigin);
+
+      // Allow exact matches from list OR any vercel.app domain (for previews)
+      const isAllowed = allowedOrigins.some(o => o.replace(/\/$/, "") === cleanOrigin) ||
+        cleanOrigin.endsWith(".vercel.app");
 
       if (isAllowed) {
         callback(null, true);

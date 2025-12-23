@@ -73,10 +73,16 @@ app.use("/api/daily-question", dailyQuestionRoutes);
 // Global error handler (must be after all routes)
 app.use(errorHandler);
 
-connectDb().then(() => {
-  const PORT = process.env.PORT || 3001;
-  app.listen(PORT, () => {
-    console.log(`✅ Server is running on port ${PORT}`);
-    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  });
+// Connect to DB (async)
+connectDb();
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`✅ Server is running on port ${PORT}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+});
+
+// Add a health check route
+app.get("/", (req, res) => {
+  res.send({ status: "running", message: "Backend is active. Check console for DB errors." });
 });

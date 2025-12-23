@@ -134,6 +134,11 @@ function Login() {
                 )}
               </div>
             </div>
+            <div className="flex justify-end">
+              <Link to="/forgot-password" className="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                Forgot Password?
+              </Link>
+            </div>
             {errors.password && (
               <p className="text-red-500 text-sm">{errors.password}</p>
             )}

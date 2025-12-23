@@ -320,8 +320,15 @@ console.log(solution([1,2,4], [1,3,4])); // Expected: [1,1,2,3,4,4]`,
 async function seedDailyQuestions() {
   try {
     // Connect to MongoDB
-    await mongoose.connect(process.env.MONGO_URL);
-    console.log('✅ Connected to MongoDB');
+    // Use env var or fallback
+    const MONGO_URL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/Students";
+
+    await mongoose.connect(MONGO_URL)
+      .then(() => console.log('✅ Connected to MongoDB'))
+      .catch(err => {
+        console.error('❌ Could not connect to MongoDB', err);
+        process.exit(1); // Exit if connection fails
+      });
 
     // Clear existing daily questions
     await DailyQuestion.deleteMany({});

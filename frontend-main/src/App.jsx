@@ -7,6 +7,8 @@ import {
 } from "react-router-dom";
 import Signup from "./components/Signup.jsx";
 import Login from "./components/Login.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
 import EnhancedHome from "./pages/EnhancedHome.jsx";
 import TrendingCourses from "./components/TrendingCourses.jsx";
 import BookSearch from "./components/Booksearch.jsx";

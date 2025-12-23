@@ -3,6 +3,13 @@ const mongoose = require('mongoose');
 const Article = require('./models/Article');
 const Student = require('./models/Students');
 
+// Use env var or fallback
+const MONGO_URL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/Students";
+
+mongoose.connect(MONGO_URL)
+    .then(() => console.log("Connected to MongoDB for Seeding"))
+    .catch(err => console.error(err));
+
 // Sample Articles Data
 const sampleArticles = [
     {

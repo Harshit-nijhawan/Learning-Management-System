@@ -24,6 +24,8 @@ const StudentSchema = new mongoose.Schema(
         ref: "Course",
       },
     ],
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
   },
   { timestamps: true }
 );

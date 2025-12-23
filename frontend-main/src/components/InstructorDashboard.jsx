@@ -7,6 +7,7 @@ import {
   Users,
   BookOpen,
   CircleUser,
+  DollarSign
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -14,75 +15,50 @@ import DashCard from "./DashCard";
 import InstructorCourseList from "./InstructorCourseList";
 import UserList from "./UserList";
 import api from "../utils/api";
-import { getToken } from "../utils/cookieUtils";
 
 function InstructorDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("dashboard");
   const [courseCount, setCourseCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [studentCount, setStudentCount] = useState(0); // Add student count logic if API available
 
-  // Fetch instructor's courses count
   useEffect(() => {
-    const fetchCourseCount = async () => {
-      try {
-        const token = getToken();
+    // Determine course count
+    api.get("/api/my-courses")
+      .then(res => {
+        const data = Array.isArray(res.data) ? res.data : (res.data.courses || []);
+        setCourseCount(data.length);
+      })
+      .catch(() => setCourseCount(0));
 
-        if (!token) {
-          setLoading(false);
-          return;
-        }
-
-        const response = await api.get("/api/my-courses", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setCourseCount(response.data.length);
-      } catch (error) {
-        console.error("Error fetching course count:", error);
-        setCourseCount(0);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (user) {
-      fetchCourseCount();
-    }
-  }, [user]);
+    // Placeholder for student count if API exists for "my students"
+    // api.get("/api/my-students").then(...) 
+  }, []);
 
   const handleLogout = () => {
     logout();
     navigate("/");
   };
 
-  const handleProfileClick = () => {
-    console.log("Profile clicked, user:", user);
-    const userId = user?._id || user?.id;
-    if (userId) {
-      console.log("Navigating to:", `/user/${userId}`);
-      navigate(`/user/${userId}`);
-    } else {
-      console.log("No user ID found");
-    }
-  };
-
   const dashData = [
     {
       title: "My Courses",
-      value: loading ? "..." : courseCount.toString(),
-      change: courseCount > 0 ? `${courseCount} total` : "No courses yet",
+      value: courseCount.toString(),
+      change: "Active",
       icon: BookOpen,
     },
-    { title: "Enrolled Students", value: "320", change: "+15", icon: Users },
     {
-      title: "Messages",
-      value: "12",
-      change: "-1 unread",
-      icon: MessageSquare,
+      title: "Total Students",
+      value: "N/A", // user.studentsCount if available in user object
+      change: "Enrolled",
+      icon: Users
+    },
+    {
+      title: "Earnings",
+      value: "$0",
+      change: "This Month",
+      icon: DollarSign,
     },
   ];
 
@@ -101,23 +77,26 @@ function InstructorDashboard() {
           active={activeSection === "courses"}
           onClick={() => setActiveSection("courses")}
         />
-        <SidebarItem 
-          icon={<Users size={20} />} 
-          text="Students"
+        <SidebarItem
+          icon={<Users size={20} />}
+          text="My Students"
           active={activeSection === "students"}
           onClick={() => setActiveSection("students")}
         />
-        <SidebarItem 
-          icon={<MessageSquare size={20} />} 
+        <SidebarItem
+          icon={<MessageSquare size={20} />}
           text="Messages"
           active={activeSection === "messages"}
           onClick={() => setActiveSection("messages")}
         />
-        <hr className="text-zinc-200" />
+        <hr className="my-2 border-slate-700" />
         <SidebarItem
           icon={<CircleUser size={20} />}
           text="Profile"
-          onClick={handleProfileClick}
+          onClick={() => {
+            const userId = user?._id || user?.id;
+            if (userId) navigate(`/user/${userId}`);
+          }}
         />
         <SidebarItem
           icon={<LogOut size={20} />}
@@ -125,16 +104,18 @@ function InstructorDashboard() {
           onClick={handleLogout}
         />
       </Sidebar>
-      <main className="flex-1 p-6 bg-white ml-60 min-h-screen">
+
+      <main className="flex-1 p-8 bg-gray-100 min-h-screen ml-64 transition-all">
         {activeSection === "dashboard" && (
           <>
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-gray-900">
                 Welcome back, {user?.name || "Instructor"}
               </h1>
-              <p className="text-gray-600 mt-2">Here's your teaching overview and recent activity.</p>
+              <p className="text-gray-600 mt-2">Manage your courses and track your progress.</p>
             </div>
-            <div className="flex flex-wrap w-full gap-5 mt-10">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
               {dashData.map((data, index) => (
                 <DashCard
                   key={index}
@@ -145,10 +126,10 @@ function InstructorDashboard() {
                 />
               ))}
             </div>
-            
-            {/* Quick Actions */}
-            <div className="mt-10">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Quick Actions</h2>
+
+            {/* Recent Courses Preview or Quick Actions */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-4">Quick Actions</h2>
               <div className="flex gap-4">
                 <button
                   onClick={() => navigate('/create-course')}
@@ -159,40 +140,40 @@ function InstructorDashboard() {
                 </button>
                 <button
                   onClick={() => setActiveSection('courses')}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2"
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2"
                 >
-                  <BookOpen size={20} />
-                  View My Courses
+                  View All Courses
                 </button>
               </div>
             </div>
           </>
         )}
+
         {activeSection === "courses" && (
           <div>
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-3xl font-bold text-gray-900">My Courses</h1>
-              <button
-                onClick={() => navigate('/create-course')}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2"
-              >
-                <BookOpen size={20} />
-                Create New Course
-              </button>
-            </div>
             <InstructorCourseList />
           </div>
         )}
+
         {activeSection === "students" && (
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-6">My Students</h1>
-            <UserList type="student" showDelete={false} />
+            {/* Reusing UserList but simplified, assuming it can filter by instructor if supported. 
+                For now generic UserList is administrative. 
+                Ideally we need an endpoint /api/my-students */}
+            <div className="bg-white p-6 rounded-lg shadow-sm text-center text-gray-500">
+              Student list management coming soon.
+            </div>
           </div>
         )}
+
         {activeSection === "messages" && (
-          <div className="mt-10 ml-4">
-            <h2 className="text-3xl font-bold text-blue-700 mb-6">Messages</h2>
-            <p className="text-gray-600">Coming soon...</p>
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Messages</h2>
+            <div className="text-center py-12 text-gray-500">
+              <MessageSquare size={48} className="mx-auto mb-4 opacity-50" />
+              <p>No new messages.</p>
+            </div>
           </div>
         )}
       </main>

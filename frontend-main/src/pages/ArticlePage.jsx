@@ -15,7 +15,7 @@ function ArticlePage() {
 
   const fetchArticle = useCallback(async () => {
     try {
-      const response = await api.get(`/articles/${slug}`);
+      const response = await api.get(`/api/articles/${slug}`);
       setArticle(response.data);
     } catch (error) {
       console.error('Error fetching article:', error);
@@ -128,18 +128,16 @@ function ArticlePage() {
             <div className="flex gap-3">
               <button
                 onClick={handleLike}
-                className={`flex items-center gap-2 px-4 py-2 rounded ${
-                  hasLiked ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded ${hasLiked ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
               >
                 <Heart size={18} className={hasLiked ? 'fill-current' : ''} />
                 {hasLiked ? 'Liked' : 'Like'}
               </button>
               <button
                 onClick={handleBookmark}
-                className={`flex items-center gap-2 px-4 py-2 rounded ${
-                  isBookmarked ? 'bg-yellow-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded ${isBookmarked ? 'bg-yellow-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
               >
                 <Bookmark size={18} className={isBookmarked ? 'fill-current' : ''} />
                 {isBookmarked ? 'Bookmarked' : 'Bookmark'}
@@ -228,11 +226,10 @@ function ArticlePage() {
                   <button
                     key={index}
                     onClick={() => setActiveTab(example.language)}
-                    className={`px-4 py-2 font-medium ${
-                      activeTab === example.language
+                    className={`px-4 py-2 font-medium ${activeTab === example.language
                         ? 'border-b-2 border-blue-600 text-blue-600'
                         : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                      }`}
                   >
                     {example.language.toUpperCase()}
                   </button>

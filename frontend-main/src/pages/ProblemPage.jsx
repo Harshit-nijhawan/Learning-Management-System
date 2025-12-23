@@ -1,20 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ChevronLeft, 
-  Bookmark, 
+import {
+  ChevronLeft,
+  Bookmark,
   BookmarkCheck,
-  Lightbulb, 
-  Play, 
-  Upload, 
-  RotateCcw,
+  Lightbulb,
   CheckCircle,
-  XCircle,
-  Clock,
   TrendingUp,
-  ThumbsUp,
+  Clock,
   Settings,
-  Maximize2
+  Youtube,
+  BookOpen,
+  Play
 } from 'lucide-react';
 import api from '../utils/api';
 
@@ -24,31 +21,13 @@ function ProblemPage() {
   const [problem, setProblem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('description');
-  const [code, setCode] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('python');
-  const [output, setOutput] = useState('');
-  const [testResults, setTestResults] = useState(null);
-  const [isRunning, setIsRunning] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [activeTestCase, setActiveTestCase] = useState(0);
-
-  const languages = [
-    { value: 'python', label: 'Python', template: '# Write your solution here\ndef solution():\n    pass\n\nif __name__ == "__main__":\n    solution()' },
-    { value: 'javascript', label: 'JavaScript', template: '// Write your solution here\nfunction solution() {\n    \n}\n\nsolution();' },
-    { value: 'java', label: 'Java', template: 'class Solution {\n    public static void main(String[] args) {\n        // Write your solution here\n    }\n}' },
-    { value: 'cpp', label: 'C++', template: '#include <iostream>\nusing namespace std;\n\nint main() {\n    // Write your solution here\n    return 0;\n}' },
-    { value: 'c', label: 'C', template: '#include <stdio.h>\n\nint main() {\n    // Write your solution here\n    return 0;\n}' }
-  ];
 
   const fetchProblem = useCallback(async () => {
     try {
       const response = await api.get(`/api/problems/${slug}`);
       setProblem(response.data);
-      // Set initial code template
-      const lang = languages.find(l => l.value === selectedLanguage);
-      setCode(lang?.template || '');
     } catch (error) {
       console.error('Error fetching problem:', error);
     } finally {
@@ -59,74 +38,6 @@ function ProblemPage() {
   useEffect(() => {
     fetchProblem();
   }, [fetchProblem]);
-
-  const handleLanguageChange = (lang) => {
-    setSelectedLanguage(lang);
-    const template = languages.find(l => l.value === lang)?.template || '';
-    setCode(template);
-    setOutput('');
-    setTestResults(null);
-  };
-
-  const handleRunCode = async () => {
-    setIsRunning(true);
-    setOutput('');
-    setTestResults(null);
-    
-    try {
-      // Simulate running against sample test cases
-      setTimeout(() => {
-        const sampleResults = {
-          passed: true,
-          testCases: problem.sampleTestCases?.map((tc, index) => ({
-            input: tc.input,
-            expectedOutput: tc.output,
-            actualOutput: tc.output,
-            passed: true,
-            executionTime: Math.floor(Math.random() * 100) + 'ms'
-          })) || []
-        };
-        
-        setTestResults(sampleResults);
-        setOutput('All sample test cases passed! ✅');
-        setIsRunning(false);
-      }, 1500);
-    } catch (error) {
-      setOutput('Error running code: ' + error.message);
-      setIsRunning(false);
-    }
-  };
-
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    setOutput('');
-    
-    try {
-      const response = await api.post(`/api/problems/${problem._id}/submit`, {
-        code,
-        language: selectedLanguage
-      });
-      
-      if (response.data.passed) {
-        setOutput('✅ Accepted! All test cases passed.\n\nCongratulations! Your solution is correct.');
-        setTestResults({
-          passed: true,
-          message: 'All test cases passed',
-          testCases: []
-        });
-      } else {
-        setOutput('❌ Wrong Answer\n\nSome test cases failed. Please review your solution.');
-        setTestResults({
-          passed: false,
-          message: response.data.message || 'Solution incorrect'
-        });
-      }
-    } catch (error) {
-      setOutput('Error submitting solution: ' + error.message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const handleBookmark = async () => {
     try {
@@ -146,6 +57,13 @@ function ProblemPage() {
       'Hard': 'text-red-600'
     };
     return colors[difficulty] || 'text-gray-600';
+  };
+
+  const getYouTubeEmbedUrl = (url) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
   };
 
   if (loading) {
@@ -190,13 +108,12 @@ function ProblemPage() {
           <div className="h-6 w-px bg-gray-300"></div>
           <h1 className="text-lg font-semibold text-gray-900">{problem.title}</h1>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <button
             onClick={handleBookmark}
-            className={`p-2 rounded hover:bg-gray-100 transition ${
-              isBookmarked ? 'text-yellow-500' : 'text-gray-600'
-            }`}
+            className={`p-2 rounded hover:bg-gray-100 transition ${isBookmarked ? 'text-yellow-500' : 'text-gray-600'
+              }`}
           >
             {isBookmarked ? <BookmarkCheck size={20} /> : <Bookmark size={20} />}
           </button>
@@ -206,10 +123,10 @@ function ProblemPage() {
         </div>
       </div>
 
-      {/* Main Content - Split View */}
+      {/* Main Content - Full Width */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Panel - Problem Description */}
-        <div className="w-1/2 border-r border-gray-200 overflow-y-auto bg-white">
+        {/* Full Width Problem Description */}
+        <div className="w-full border-r border-gray-200 overflow-y-auto bg-white mx-auto max-w-4xl">
           <div className="p-6">
             {/* Problem Header */}
             <div className="mb-6">
@@ -231,7 +148,7 @@ function ProblemPage() {
                   </>
                 )}
               </div>
-              
+
               {/* Acceptance Rate */}
               {problem.stats && (
                 <div className="flex items-center gap-4 text-sm text-gray-600">
@@ -252,17 +169,20 @@ function ProblemPage() {
 
             {/* Tabs */}
             <div className="flex gap-6 border-b border-gray-200 mb-6">
-              {['description', 'editorial', 'solutions', 'submissions'].map((tab) => (
+              {[
+                { id: 'description', label: 'Description' },
+                { id: 'solution', label: 'Solution (Video & Theory)' },
+                { id: 'submissions', label: 'Submissions' }
+              ].map((tab) => (
                 <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`pb-2 font-medium capitalize transition ${
-                    activeTab === tab
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`pb-2 font-medium transition ${activeTab === tab.id
                       ? 'text-green-600 border-b-2 border-green-600'
                       : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                    }`}
                 >
-                  {tab}
+                  {tab.label}
                 </button>
               ))}
             </div>
@@ -391,199 +311,71 @@ function ProblemPage() {
               </div>
             )}
 
-            {activeTab === 'editorial' && (
-              <div className="text-center py-12 text-gray-500">
-                <CheckCircle size={48} className="mx-auto mb-4 text-gray-400" />
-                <p>Editorial will be available after you solve the problem</p>
-              </div>
-            )}
+            {/* Solution Tab (Video + Theory) */}
+            {activeTab === 'solution' && (
+              <div className="space-y-8">
+                {/* Video Solution */}
+                <div>
+                  <h3 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4">
+                    <Youtube className="text-red-600" />
+                    Video Solution
+                  </h3>
+                  {problem.videoUrl ? (
+                    <div className="aspect-w-16 aspect-h-9 bg-black rounded-lg overflow-hidden shadow-lg">
+                      <iframe
+                        src={getYouTubeEmbedUrl(problem.videoUrl)}
+                        title="Video Solution"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-[400px] border-0"
+                      ></iframe>
+                    </div>
+                  ) : (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+                      <Play size={48} className="mx-auto mb-4 text-gray-300" />
+                      <p className="text-gray-500">Video solution coming soon.</p>
+                    </div>
+                  )}
+                </div>
 
-            {activeTab === 'solutions' && (
-              <div className="text-center py-12 text-gray-500">
-                <ThumbsUp size={48} className="mx-auto mb-4 text-gray-400" />
-                <p>Community solutions will appear here</p>
+                {/* Theory Explanation */}
+                <div>
+                  <h3 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4">
+                    <BookOpen className="text-blue-600" />
+                    Theory & Approach
+                  </h3>
+                  {problem.theory ? (
+                    <div className="prose prose-slate max-w-none bg-white p-6 rounded-lg border border-gray-200">
+                      {/* Simple rendering for now, can use ReactMarkdown if added */}
+                      <p className="whitespace-pre-wrap">{problem.theory}</p>
+                    </div>
+                  ) : (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+                      <p className="text-gray-500">Detailed explanation coming soon.</p>
+                      {/* Fallback to old solutions if available */}
+                      {problem.solutions && problem.solutions.length > 0 && (
+                        <div className="mt-4 text-left">
+                          <p className="font-semibold mb-2">Community Solutions:</p>
+                          {problem.solutions.map((sol, idx) => (
+                            <div key={idx} className="bg-white p-4 rounded border border-gray-200 mb-2">
+                              <p className="font-medium">{sol.approach}</p>
+                              <p className="text-sm text-gray-600 mt-1">{sol.explanation}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
             {activeTab === 'submissions' && (
               <div className="text-center py-12 text-gray-500">
                 <Clock size={48} className="mx-auto mb-4 text-gray-400" />
-                <p>Your submission history will appear here</p>
+                <p>Your submission history (Not available in read-only mode)</p>
               </div>
             )}
-          </div>
-        </div>
-
-        {/* Right Panel - Code Editor */}
-        <div className="w-1/2 flex flex-col bg-white">
-          {/* Editor Header */}
-          <div className="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between">
-            <select
-              value={selectedLanguage}
-              onChange={(e) => handleLanguageChange(e.target.value)}
-              className="bg-white border border-gray-300 text-gray-900 px-3 py-1.5 rounded text-sm outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            >
-              {languages.map(lang => (
-                <option key={lang.value} value={lang.value}>{lang.label}</option>
-              ))}
-            </select>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  const lang = languages.find(l => l.value === selectedLanguage);
-                  setCode(lang?.template || '');
-                }}
-                className="flex items-center gap-2 px-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-100 border border-gray-300 transition"
-              >
-                <RotateCcw size={14} />
-                Reset
-              </button>
-              <button className="p-1.5 rounded text-gray-600 hover:bg-gray-100 transition">
-                <Maximize2 size={16} />
-              </button>
-            </div>
-          </div>
-
-          {/* Code Editor Textarea */}
-          <div className="flex-1 overflow-hidden">
-            <textarea
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              className="w-full h-full bg-white text-gray-900 p-4 font-mono text-sm resize-none focus:outline-none border-0"
-              style={{ 
-                lineHeight: '1.6',
-                tabSize: 4
-              }}
-              placeholder="Write your code here..."
-              spellCheck={false}
-            />
-          </div>
-
-          {/* Test Cases / Results Panel */}
-          <div className="h-64 border-t border-gray-200 bg-gray-50 overflow-y-auto">
-            {/* Testcase Tabs */}
-            <div className="flex gap-4 px-4 py-2 border-b border-gray-200 bg-white">
-              <button className="text-sm font-medium text-green-600 border-b-2 border-green-600 pb-1">
-                Testcase
-              </button>
-              <button className="text-sm text-gray-600 hover:text-gray-900">
-                Test Result
-              </button>
-            </div>
-
-            {/* Testcase Content */}
-            <div className="p-4">
-              {!testResults && problem.sampleTestCases && problem.sampleTestCases.length > 0 && (
-                <div>
-                  {/* Testcase Selector */}
-                  <div className="flex gap-2 mb-4">
-                    {problem.sampleTestCases.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setActiveTestCase(index)}
-                        className={`px-3 py-1 rounded text-sm ${
-                          activeTestCase === index
-                            ? 'bg-green-600 text-white'
-                            : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
-                        }`}
-                      >
-                        Case {index + 1}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Active Testcase Display */}
-                  {problem.sampleTestCases[activeTestCase] && (
-                    <div className="space-y-3">
-                      <div>
-                        <div className="text-xs text-gray-600 mb-1">Input:</div>
-                        <pre className="bg-white border border-gray-200 p-2 rounded text-sm text-gray-900 overflow-x-auto">
-                          {problem.sampleTestCases[activeTestCase].input}
-                        </pre>
-                      </div>
-                      <div>
-                        <div className="text-xs text-gray-600 mb-1">Expected Output:</div>
-                        <pre className="bg-white border border-gray-200 p-2 rounded text-sm text-gray-900 overflow-x-auto">
-                          {problem.sampleTestCases[activeTestCase].output}
-                        </pre>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Test Results */}
-              {testResults && (
-                <div className="space-y-3">
-                  {testResults.passed ? (
-                    <div className="flex items-center gap-2 text-green-600">
-                      <CheckCircle size={20} />
-                      <span className="font-semibold">All test cases passed!</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-red-600">
-                      <XCircle size={20} />
-                      <span className="font-semibold">Some tests failed</span>
-                    </div>
-                  )}
-
-                  {testResults.testCases && testResults.testCases.map((tc, index) => (
-                    <div key={index} className={`p-3 rounded border ${
-                      tc.passed ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
-                    }`}>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-semibold text-gray-900">Test Case {index + 1}</span>
-                        <span className={`text-xs ${tc.passed ? 'text-green-600' : 'text-red-600'}`}>
-                          {tc.passed ? 'Passed' : 'Failed'}
-                        </span>
-                      </div>
-                      <div className="text-xs space-y-1 text-gray-700">
-                        <div><span className="text-gray-600">Runtime:</span> {tc.executionTime}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Output */}
-              {output && (
-                <div className="mt-4">
-                  <div className="text-xs text-gray-600 mb-2">Console Output:</div>
-                  <pre className="bg-white border border-gray-200 p-3 rounded text-sm text-gray-900 whitespace-pre-wrap">
-                    {output}
-                  </pre>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Bottom Action Bar */}
-          <div className="bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Clock size={14} />
-              <span>Last executed: Never</span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleRunCode}
-                disabled={isRunning || !code.trim()}
-                className="flex items-center gap-2 px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 text-gray-900 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300"
-              >
-                <Play size={16} />
-                {isRunning ? 'Running...' : 'Run Code'}
-              </button>
-
-              <button
-                onClick={handleSubmit}
-                disabled={isSubmitting || !code.trim()}
-                className="flex items-center gap-2 px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Upload size={16} />
-                {isSubmitting ? 'Submitting...' : 'Submit'}
-              </button>
-            </div>
           </div>
         </div>
       </div>

@@ -18,7 +18,7 @@ import RoleBasedDashboard from "./components/RoleBasedDashboard.jsx";
 import CoursePage from "./pages/CoursePage.jsx";
 import CreateCourse from "./pages/CreateCourse.jsx";
 import ShowCourses from "./pages/ShowCourses.jsx";
-import UpdateCourse from "./pages/Updatecourse";
+import UpdateCourse from "./pages/UpdateCourse.jsx";
 import UserProfile from "./pages/UserProfile";
 import Cart from "./pages/Cart";
 import ArticlePage from "./pages/ArticlePage.jsx";
@@ -61,97 +61,97 @@ function App() {
             <Route path="/" element={<EnhancedHome />} />
             <Route path="/register" element={<Signup />} />
             <Route path="/login" element={<Login />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route path="/books" element={<BookSearch />} />
-          
-          <Route
-            path="/ContactUs"
-            element={
-              <ProtectedRoute>
-                <ContactUs />
-              </ProtectedRoute>
-            }
-          />
+            <Route path="/explore" element={<Explore />} />
+            <Route path="/books" element={<BookSearch />} />
 
-          {/* UPDATED: Direct route to CoursePage for dynamic data fetching */}
-          <Route path="/course/:id" element={<CoursePage />} />
+            <Route
+              path="/ContactUs"
+              element={
+                <ProtectedRoute>
+                  <ContactUs />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/trending"
-            element={
-              <ProtectedRoute>
-                <TrendingCourses />
-                <ContactUs />
-              </ProtectedRoute>
-            }
-          />
+            {/* UPDATED: Direct route to CoursePage for dynamic data fetching */}
+            <Route path="/course/:id" element={<CoursePage />} />
 
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <RoleBasedDashboard />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/trending"
+              element={
+                <ProtectedRoute>
+                  <TrendingCourses />
+                  <ContactUs />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Instructor Routes */}
-          <Route 
-            path="/create-course" 
-            element={
-              <ProtectedRoute>
-                <CreateCourse />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/update-course/:id" 
-            element={
-              <ProtectedRoute>
-                <UpdateCourse />
-              </ProtectedRoute>
-            } 
-          />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <RoleBasedDashboard />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route path="/show-courses" element={<ShowCourses />} />
-          
-          <Route
-            path="/user/:id"
-            element={
-              <ProtectedRoute>
-                <UserProfile />
-              </ProtectedRoute>
-            }
-          />
-          
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <UserProfile />
-              </ProtectedRoute>
-            }
-          />
-          
-          <Route path="/cart" element={<Cart />} />
-          
-          {/* GFG-Style Features */}
-          <Route path="/articles" element={<Articles />} />
-          <Route path="/articles/:slug" element={<ArticlePage />} />
-          <Route path="/problems" element={<Problems />} />
-          <Route path="/problems/:slug" element={<ProblemPage />} />
-          <Route path="/paths" element={<LearningPaths />} />
-          
-          {/* Daily Coding Challenge */}
-          <Route 
-            path="/daily-question" 
-            element={
-              <ProtectedRoute>
-                <DailyQuestion />
-              </ProtectedRoute>
-            } 
-          />
-        </Routes>
+            {/* Instructor Routes */}
+            <Route
+              path="/create-course"
+              element={
+                <ProtectedRoute>
+                  <CreateCourse />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/update-course/:id"
+              element={
+                <ProtectedRoute>
+                  <UpdateCourse />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path="/show-courses" element={<ShowCourses />} />
+
+            <Route
+              path="/user/:id"
+              element={
+                <ProtectedRoute>
+                  <UserProfile />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <UserProfile />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path="/cart" element={<Cart />} />
+
+            {/* GFG-Style Features */}
+            <Route path="/articles" element={<Articles />} />
+            <Route path="/articles/:slug" element={<ArticlePage />} />
+            <Route path="/problems" element={<Problems />} />
+            <Route path="/problems/:slug" element={<ProblemPage />} />
+            <Route path="/paths" element={<LearningPaths />} />
+
+            {/* Daily Coding Challenge */}
+            <Route
+              path="/daily-question"
+              element={
+                <ProtectedRoute>
+                  <DailyQuestion />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

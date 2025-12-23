@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Trash2, Pencil, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getToken } from "../utils/cookieUtils";
+import api from "../utils/api";
 
 function InstructorCourseList() {
   const [courses, setCourses] = useState([]);
@@ -15,21 +15,13 @@ function InstructorCourseList() {
 
   const fetchInstructorCourses = async () => {
     try {
-      const res = await fetch("http://localhost:3001/api/my-courses", {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setCourses(data);
-      } else {
-        console.error("Failed to fetch courses:", data.message);
-        setCourses([]);
-      }
+      const response = await api.get("/api/my-courses");
+      // Handle both array or { courses: [] } format
+      const data = Array.isArray(response.data) ? response.data : (response.data.courses || []);
+      setCourses(data);
     } catch (err) {
       console.error("Error fetching courses:", err);
+      // If error is 404 or others, default to empty
       setCourses([]);
     } finally {
       setLoading(false);
@@ -40,20 +32,11 @@ function InstructorCourseList() {
     if (window.confirm("Are you sure you want to delete this course?")) {
       setDeletingId(id);
       try {
-        const res = await fetch(`http://localhost:3001/api/courses/${id}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setCourses((prev) => prev.filter((course) => course._id !== id));
-        } else {
-          alert(data.message || "Failed to delete course");
-        }
+        await api.delete(`/api/courses/${id}`);
+        setCourses((prev) => prev.filter((course) => course._id !== id));
       } catch (err) {
-        alert("Failed to delete course");
+        console.error("Error deleting course:", err);
+        alert(err.response?.data?.message || "Failed to delete course");
       }
       setDeletingId(null);
     }
@@ -104,7 +87,7 @@ function InstructorCourseList() {
                       ₹{course.price}
                     </span>
                     <span>Rating: {course.rating || "Not rated"}</span>
-                    <span>Students: {course.studentsEnrolled}</span>
+                    <span>Students: {course.studentsEnrolled || 0}</span>
                     <span>
                       Created: {new Date(course.createdAt).toLocaleDateString()}
                     </span>
@@ -131,11 +114,10 @@ function InstructorCourseList() {
                 </button>
                 <button
                   onClick={() => handleDelete(course._id)}
-                  className={`bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded transition flex items-center gap-1 ${
-                    deletingId === course._id
+                  className={`bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded transition flex items-center gap-1 ${deletingId === course._id
                       ? "opacity-50 cursor-not-allowed"
                       : ""
-                  }`}
+                    }`}
                   title="Delete"
                   disabled={deletingId === course._id}
                 >

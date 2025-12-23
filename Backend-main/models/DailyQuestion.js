@@ -105,6 +105,13 @@ const dailyQuestionSchema = new mongoose.Schema({
   totalAccepted: {
     type: Number,
     default: 0
+  },
+  videoUrl: {
+    type: String,
+    trim: true
+  },
+  theory: {
+    type: String
   }
 }, {
   timestamps: true
@@ -114,27 +121,27 @@ const dailyQuestionSchema = new mongoose.Schema({
 dailyQuestionSchema.index({ date: -1 });
 
 // Method to get today's question
-dailyQuestionSchema.statics.getTodaysQuestion = async function() {
+dailyQuestionSchema.statics.getTodaysQuestion = async function () {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
-  
+
   let question = await this.findOne({
     date: { $gte: today, $lt: tomorrow }
   });
-  
+
   // If no question for today, get the latest question
   if (!question) {
     question = await this.findOne().sort({ date: -1 });
   }
-  
+
   return question;
 };
 
 // Method to update acceptance rate
-dailyQuestionSchema.methods.updateAcceptanceRate = function() {
+dailyQuestionSchema.methods.updateAcceptanceRate = function () {
   if (this.totalSubmissions > 0) {
     this.acceptanceRate = ((this.totalAccepted / this.totalSubmissions) * 100).toFixed(2);
   }

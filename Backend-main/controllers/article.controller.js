@@ -4,18 +4,18 @@ const UserProgressModel = require("../models/UserProgress");
 // Get all published articles with filters
 const getArticles = async (req, res) => {
   try {
-    const { 
-      category, 
-      subcategory, 
-      difficulty, 
-      tag, 
+    const {
+      category,
+      subcategory,
+      difficulty,
+      tag,
       search,
       page = 1,
-      limit = 20 
+      limit = 20
     } = req.query;
-    
+
     const filter = { status: 'published' };
-    
+
     if (category) filter.category = category;
     if (subcategory) filter.subcategory = subcategory;
     if (difficulty) filter.difficulty = difficulty;
@@ -23,16 +23,19 @@ const getArticles = async (req, res) => {
     if (search) {
       filter.$text = { $search: search };
     }
-    
+
+    console.log("DEBUG: Fetching articles with filter:", JSON.stringify(filter));
+
     const articles = await ArticleModel.find(filter)
       .populate('author', 'name email')
       .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .select('-content'); // Don't send full content in list
-    
+
     const count = await ArticleModel.countDocuments(filter);
-    
+    console.log(`DEBUG: Found ${articles.length} articles. Total count: ${count}`);
+
     res.json({
       articles,
       totalPages: Math.ceil(count / limit),
@@ -49,20 +52,20 @@ const getArticles = async (req, res) => {
 const getArticleBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
-    
+
     const article = await ArticleModel.findOne({ slug, status: 'published' })
       .populate('author', 'name email')
       .populate('prerequisites', 'title slug')
       .populate('relatedArticles', 'title slug difficulty readTime');
-    
+
     if (!article) {
       return res.status(404).json({ message: "Article not found" });
     }
-    
+
     // Increment view count
     article.views += 1;
     await article.save();
-    
+
     res.json(article);
   } catch (error) {
     console.error("Error fetching article:", error);
@@ -77,9 +80,9 @@ const createArticle = async (req, res) => {
       ...req.body,
       author: req.user._id
     };
-    
+
     const article = await ArticleModel.create(articleData);
-    
+
     res.status(201).json({
       message: "Article created successfully",
       article
@@ -95,22 +98,22 @@ const updateArticle = async (req, res) => {
   try {
     const { id } = req.params;
     const article = await ArticleModel.findById(id);
-    
+
     if (!article) {
       return res.status(404).json({ message: "Article not found" });
     }
-    
+
     // Check authorization
     if (article.author.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({ message: "Not authorized" });
     }
-    
+
     const updated = await ArticleModel.findByIdAndUpdate(
       id,
       { ...req.body, lastUpdatedBy: req.user._id },
       { new: true }
     );
-    
+
     res.json({
       message: "Article updated successfully",
       article: updated
@@ -126,17 +129,17 @@ const deleteArticle = async (req, res) => {
   try {
     const { id } = req.params;
     const article = await ArticleModel.findById(id);
-    
+
     if (!article) {
       return res.status(404).json({ message: "Article not found" });
     }
-    
+
     if (article.author.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({ message: "Not authorized" });
     }
-    
+
     await ArticleModel.findByIdAndDelete(id);
-    
+
     res.json({ message: "Article deleted successfully" });
   } catch (error) {
     console.error("Error deleting article:", error);
@@ -149,15 +152,15 @@ const toggleLikeArticle = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user._id;
-    
+
     const article = await ArticleModel.findById(id);
-    
+
     if (!article) {
       return res.status(404).json({ message: "Article not found" });
     }
-    
+
     const hasLiked = article.likedBy.some(id => id.toString() === userId.toString());
-    
+
     if (hasLiked) {
       // Unlike
       article.likedBy = article.likedBy.filter(id => id.toString() !== userId.toString());
@@ -167,9 +170,9 @@ const toggleLikeArticle = async (req, res) => {
       article.likedBy.push(userId);
       article.likes += 1;
     }
-    
+
     await article.save();
-    
+
     res.json({
       message: hasLiked ? "Article unliked" : "Article liked",
       likes: article.likes,
@@ -186,23 +189,23 @@ const toggleBookmarkArticle = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user._id;
-    
+
     const article = await ArticleModel.findById(id);
-    
+
     if (!article) {
       return res.status(404).json({ message: "Article not found" });
     }
-    
+
     // Get or create user progress
     let progress = await UserProgressModel.findOne({ user: userId });
     if (!progress) {
       progress = await UserProgressModel.create({ user: userId });
     }
-    
+
     const hasBookmarked = progress.bookmarkedArticles.some(
       b => b.article.toString() === id
     );
-    
+
     if (hasBookmarked) {
       // Remove bookmark
       progress.bookmarkedArticles = progress.bookmarkedArticles.filter(
@@ -216,10 +219,10 @@ const toggleBookmarkArticle = async (req, res) => {
       progress.bookmarkedArticles.push({ article: id });
       article.bookmarkedBy.push(userId);
     }
-    
+
     await progress.save();
     await article.save();
-    
+
     res.json({
       message: hasBookmarked ? "Bookmark removed" : "Article bookmarked",
       isBookmarked: !hasBookmarked
@@ -236,41 +239,41 @@ const markArticleCompleted = async (req, res) => {
     const { id } = req.params;
     const userId = req.user._id;
     const { timeSpent } = req.body;
-    
+
     let progress = await UserProgressModel.findOne({ user: userId });
     if (!progress) {
       progress = await UserProgressModel.create({ user: userId });
     }
-    
+
     // Check if already completed
     const alreadyCompleted = progress.articlesCompleted.some(
       a => a.article.toString() === id
     );
-    
+
     if (!alreadyCompleted) {
       progress.articlesCompleted.push({
         article: id,
         timeSpent: timeSpent || 0
       });
-      
+
       // Update streak
       progress.updateStreak();
-      
+
       // Add to recent activity
       progress.recentActivity.unshift({
         type: 'article_read',
         itemId: id,
         description: 'Completed an article'
       });
-      
+
       // Keep only last 50 activities
       if (progress.recentActivity.length > 50) {
         progress.recentActivity = progress.recentActivity.slice(0, 50);
       }
-      
+
       await progress.save();
     }
-    
+
     res.json({
       message: "Article marked as completed",
       progress
@@ -284,14 +287,14 @@ const markArticleCompleted = async (req, res) => {
 // Get featured articles
 const getFeaturedArticles = async (req, res) => {
   try {
-    const articles = await ArticleModel.find({ 
+    const articles = await ArticleModel.find({
       status: 'published',
-      isFeatured: true 
+      isFeatured: true
     })
       .populate('author', 'name email')
       .limit(10)
       .select('-content');
-    
+
     res.json(articles);
   } catch (error) {
     console.error("Error fetching featured articles:", error);

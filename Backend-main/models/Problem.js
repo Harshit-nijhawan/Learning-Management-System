@@ -2,24 +2,24 @@ const mongoose = require("mongoose");
 
 // GFG-style coding problem/challenge model
 const problemSchema = new mongoose.Schema({
-  title: { 
-    type: String, 
+  title: {
+    type: String,
     required: true,
     trim: true
   },
-  
-  slug: { 
-    type: String, 
+
+  slug: {
+    type: String,
     unique: true,
     lowercase: true
   },
-  
+
   // Problem statement
   description: {
     type: String,
     required: true
   },
-  
+
   // Category
   category: {
     type: String,
@@ -43,32 +43,32 @@ const problemSchema = new mongoose.Schema({
       'Bit Manipulation'
     ]
   },
-  
+
   // Difficulty level
   difficulty: {
     type: String,
     enum: ['School', 'Basic', 'Easy', 'Medium', 'Hard'],
     required: true
   },
-  
+
   // Problem tags
   tags: [{ type: String }],
-  
+
   // Input format explanation
   inputFormat: {
     type: String,
     required: true
   },
-  
+
   // Output format explanation
   outputFormat: {
     type: String,
     required: true
   },
-  
+
   // Constraints
   constraints: [{ type: String }],
-  
+
   // Sample test cases (visible to users)
   sampleTestCases: [
     {
@@ -77,7 +77,7 @@ const problemSchema = new mongoose.Schema({
       explanation: { type: String }
     }
   ],
-  
+
   // Hidden test cases (for evaluation)
   hiddenTestCases: [
     {
@@ -85,13 +85,13 @@ const problemSchema = new mongoose.Schema({
       output: { type: String, required: true }
     }
   ],
-  
+
   // Expected time complexity
   expectedComplexity: {
     time: { type: String },
     space: { type: String }
   },
-  
+
   // Solution approaches
   solutions: [
     {
@@ -103,7 +103,7 @@ const problemSchema = new mongoose.Schema({
       },
       code: [
         {
-          language: { 
+          language: {
             type: String,
             enum: ['python', 'java', 'cpp', 'javascript', 'c']
           },
@@ -112,10 +112,10 @@ const problemSchema = new mongoose.Schema({
       ]
     }
   ],
-  
+
   // Hints (progressive hints)
   hints: [{ type: String }],
-  
+
   // Related problems
   relatedProblems: [
     {
@@ -123,7 +123,7 @@ const problemSchema = new mongoose.Schema({
       ref: 'Problem'
     }
   ],
-  
+
   // Similar problems
   similarProblems: [
     {
@@ -131,43 +131,54 @@ const problemSchema = new mongoose.Schema({
       ref: 'Problem'
     }
   ],
-  
+
   // Companies that asked this problem
   companies: [{ type: String }],
-  
+
   // Author
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student',
     required: true
   },
-  
+
   // Statistics
   stats: {
     totalSubmissions: { type: Number, default: 0 },
     successfulSubmissions: { type: Number, default: 0 },
     views: { type: Number, default: 0 }
   },
-  
+
   // Points/score for solving
   points: {
     type: Number,
     default: 10
   },
-  
+
   // Is this problem published
   status: {
     type: String,
     enum: ['draft', 'published', 'archived'],
     default: 'draft'
   },
-  
+
   // Featured problem flag
   isFeatured: {
     type: Boolean,
     default: false
+  },
+
+  // Video Solution URL (YouTube)
+  videoUrl: {
+    type: String,
+    trim: true
+  },
+
+  // Detailed Theory Explanation (Markdown/HTML)
+  theory: {
+    type: String
   }
-  
+
 }, { timestamps: true });
 
 // Indexes
@@ -176,7 +187,7 @@ problemSchema.index({ category: 1, difficulty: 1 });
 problemSchema.index({ tags: 1 });
 
 // Auto-generate slug
-problemSchema.pre('save', function(next) {
+problemSchema.pre('save', function (next) {
   if (!this.slug || this.isModified('title')) {
     this.slug = this.title
       .toLowerCase()

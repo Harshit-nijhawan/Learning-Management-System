@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import api from "../utils/api";
 
 function ContactUs() {
   const [formData, setFormData] = useState({
@@ -71,15 +72,7 @@ function ContactUs() {
     setIsSubmitting(true);
     setSubmitStatus(null);
     try {
-      const response = await fetch(
-        "http://localhost:3001/api/messages/contactUs",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        }
-      );
-      if (!response.ok) throw new Error("Network response was not ok");
+      const response = await api.post("/api/messages/contactUs", formData);
       setSubmitStatus("success");
       setFormData({ name: "", email: "", message: "" });
     } catch (error) {
@@ -148,11 +141,10 @@ function ContactUs() {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                      errors.name
-                        ? "border-red-500 bg-red-50"
-                        : "border-gray-300 hover:border-gray-400"
-                    }`}
+                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${errors.name
+                      ? "border-red-500 bg-red-50"
+                      : "border-gray-300 hover:border-gray-400"
+                      }`}
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -179,11 +171,10 @@ function ContactUs() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                      errors.email
-                        ? "border-red-500 bg-red-50"
-                        : "border-gray-300 hover:border-gray-400"
-                    }`}
+                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${errors.email
+                      ? "border-red-500 bg-red-50"
+                      : "border-gray-300 hover:border-gray-400"
+                      }`}
                     placeholder="Enter your email address"
                   />
                 </div>
@@ -210,11 +201,10 @@ function ContactUs() {
                     rows={5}
                     value={formData.message}
                     onChange={handleChange}
-                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none ${
-                      errors.message
-                        ? "border-red-500 bg-red-50"
-                        : "border-gray-300 hover:border-gray-400"
-                    }`}
+                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none ${errors.message
+                      ? "border-red-500 bg-red-50"
+                      : "border-gray-300 hover:border-gray-400"
+                      }`}
                     placeholder="Tell us how we can help you..."
                   />
                 </div>
@@ -231,11 +221,10 @@ function ContactUs() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className={`w-full flex items-center justify-center gap-3 py-4 px-6 rounded-lg font-semibold text-white transition-all duration-200 ${
-                  isSubmitting
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
-                }`}
+                className={`w-full flex items-center justify-center gap-3 py-4 px-6 rounded-lg font-semibold text-white transition-all duration-200 ${isSubmitting
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+                  }`}
               >
                 {isSubmitting ? (
                   <>

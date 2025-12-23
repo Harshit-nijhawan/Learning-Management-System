@@ -2,7 +2,8 @@ import React from "react";
 import { useState } from "react";
 import { HeartIcon, StarIcon } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { getToken } from "../utils/cookieUtils";
+// import { getToken } from "../utils/cookieUtils"; // No longer needed
+import api from "../utils/api";
 
 const Card = ({ title, author, rating, img, hours, category, courseId }) => {
   const [mouseOver, setMouseOver] = useState(false);
@@ -20,52 +21,21 @@ const Card = ({ title, author, rating, img, hours, category, courseId }) => {
     setLoading(true);
 
     try {
-      const token = getToken();
-
       if (inCart) {
         // Remove from cart
-        const response = await fetch(
-          `http://localhost:3001/api/protected/cart/${courseId}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (response.ok) {
-          setInCart(false);
-          alert("Course removed from cart");
-        } else {
-          alert("Failed to remove course from cart");
-        }
+        await api.delete(`/api/protected/cart/${courseId}`);
+        setInCart(false);
+        alert("Course removed from cart");
       } else {
         // Add to cart
-        const response = await fetch(
-          "http://localhost:3001/api/protected/cart",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ courseId }),
-          }
-        );
-
-        if (response.ok) {
-          setInCart(true);
-          alert("Course added to cart");
-        } else {
-          const errorData = await response.json();
-          alert(errorData.message || "Failed to add course to cart");
-        }
+        await api.post("/api/protected/cart", { courseId });
+        setInCart(true);
+        alert("Course added to cart");
       }
     } catch (error) {
       console.error("Error managing cart:", error);
-      alert("Error managing cart");
+      const message = error.response?.data?.message || "Error managing cart";
+      alert(message);
     } finally {
       setLoading(false);
     }
@@ -80,9 +50,8 @@ const Card = ({ title, author, rating, img, hours, category, courseId }) => {
       <div className="relative overflow-hidden rounded-sm">
         <img src={img} alt="" className=" h-52 w-full object-cover" />
         <span
-          className={`absolute bg-white p-2 rounded-full top-1 right-1 ${
-            mouseOver ? "flex" : "hidden"
-          } items-center justify-center inset-shadow-sm inset-shadow-red-700`}
+          className={`absolute bg-white p-2 rounded-full top-1 right-1 ${mouseOver ? "flex" : "hidden"
+            } items-center justify-center inset-shadow-sm inset-shadow-red-700`}
         >
           <HeartIcon
             width={18}
@@ -110,17 +79,16 @@ const Card = ({ title, author, rating, img, hours, category, courseId }) => {
         </div>
         <div>
           <button
-            className={`bg-blue-500 text-white py-1 px-2 rounded-sm text-sm hover:cursor-pointer ${
-              loading ? "opacity-50" : ""
-            }`}
+            className={`bg-blue-500 text-white py-1 px-2 rounded-sm text-sm hover:cursor-pointer ${loading ? "opacity-50" : ""
+              }`}
             onClick={handleCartToggle}
             disabled={loading}
           >
             {loading
               ? "Loading..."
               : inCart
-              ? "Remove from cart"
-              : "Add to cart"}
+                ? "Remove from cart"
+                : "Add to cart"}
           </button>
         </div>
       </div>

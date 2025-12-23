@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BookOpen, PlayCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import api from "../utils/api"; 
+import api from "../utils/api";
 
 function StudentCourseList() {
   const [courses, setCourses] = useState([]);
@@ -21,6 +21,8 @@ function StudentCourseList() {
     };
     fetchPurchasedCourses();
   }, []);
+
+  const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
   if (loading) {
     return (
@@ -47,7 +49,7 @@ function StudentCourseList() {
               <div className="relative h-40 overflow-hidden bg-gray-100">
                 {course.image && (
                   <img
-                    src={`http://localhost:3001/images/${course.image}`}
+                    src={`${baseURL}/images/${course.image}`}
                     alt={course.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
@@ -69,11 +71,11 @@ function StudentCourseList() {
                   <button
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center gap-2 cursor-pointer"
                     onClick={() => {
-                        if (course._id && !course._id.includes("<")) {
-                            navigate(`/course/${course._id}`);
-                        } else {
-                            console.error("Invalid ID, skipping navigation");
-                        }
+                      if (course._id && !course._id.includes("<")) {
+                        navigate(`/course/${course._id}`);
+                      } else {
+                        console.error("Invalid ID, skipping navigation");
+                      }
                     }}
                   >
                     <PlayCircle size={18} /> Open Course

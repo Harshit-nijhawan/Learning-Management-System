@@ -168,7 +168,7 @@ function StudentDashboard() {
             {/* Daily Challenge Widget */}
             {dailyQuestion && (
               <div className="mt-10">
-                <div 
+                <div
                   className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
                   onClick={() => navigate('/daily-question')}
                 >
@@ -179,21 +179,20 @@ function StudentDashboard() {
                         <div>
                           <h3 className="text-xl font-bold">Daily Coding Challenge</h3>
                           <p className="text-blue-100 text-sm">
-                            {new Date(dailyQuestion.date).toLocaleDateString('en-US', { 
-                              month: 'long', 
-                              day: 'numeric' 
+                            {new Date(dailyQuestion.date).toLocaleDateString('en-US', {
+                              month: 'long',
+                              day: 'numeric'
                             })}
                           </p>
                         </div>
                       </div>
-                      
+
                       <h4 className="text-lg font-semibold mb-2">{dailyQuestion.title}</h4>
                       <div className="flex items-center gap-3 mb-4">
-                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                          dailyQuestion.difficulty === 'Easy' ? 'bg-green-500' :
-                          dailyQuestion.difficulty === 'Medium' ? 'bg-yellow-500' :
-                          'bg-red-500'
-                        } bg-opacity-20 backdrop-blur-sm`}>
+                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${dailyQuestion.difficulty === 'Easy' ? 'bg-green-500' :
+                            dailyQuestion.difficulty === 'Medium' ? 'bg-yellow-500' :
+                              'bg-red-500'
+                          } bg-opacity-20 backdrop-blur-sm`}>
                           {dailyQuestion.difficulty}
                         </span>
                         {dailyQuestion.tags && dailyQuestion.tags.slice(0, 2).map((tag, idx) => (
@@ -202,12 +201,12 @@ function StudentDashboard() {
                           </span>
                         ))}
                       </div>
-                      
+
                       <button className="bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
                         Solve Now →
                       </button>
                     </div>
-                    
+
                     {userStats && (
                       <div className="flex flex-col gap-3 ml-6">
                         <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-3 text-center min-w-[100px]">
@@ -230,7 +229,7 @@ function StudentDashboard() {
                 </div>
               </div>
             )}
-            
+
             {/* Enrolled Courses Preview */}
             {purchasedCourses.length > 0 && (
               <div className="mt-10">
@@ -253,7 +252,7 @@ function StudentDashboard() {
                       <div className="relative h-40 overflow-hidden bg-gray-100">
                         {course.image && (
                           <img
-                            src={`http://localhost:3001/images/${course.image}`}
+                            src={`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/images/${course.image}`}
                             alt={course.title}
                             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                           />

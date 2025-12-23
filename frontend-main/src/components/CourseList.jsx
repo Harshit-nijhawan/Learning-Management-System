@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Trash2, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import UpdateCourse from "../pages/Updatecourse";
-import { getToken } from "../utils/cookieUtils";
+import api from "../utils/api";
 function CourseList({ showEdit = true }) {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -10,9 +10,9 @@ function CourseList({ showEdit = true }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/allCourses")
-      .then((res) => res.json())
-      .then((data) => {
+    api.get("/api/allCourses")
+      .then((res) => {
+        const data = res.data;
         if (Array.isArray(data)) {
           setCourses(data);
         } else if (data && Array.isArray(data.courses)) {
@@ -32,20 +32,10 @@ function CourseList({ showEdit = true }) {
     if (window.confirm("Are you sure you want to delete this course?")) {
       setDeletingId(id);
       try {
-        const res = await fetch(`http://localhost:3001/api/courses/${id}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setCourses((prev) => prev.filter((course) => course._id !== id));
-        } else {
-          alert(data.message || "Failed to delete course");
-        }
+        await api.delete(`/api/courses/${id}`);
+        setCourses((prev) => prev.filter((course) => course._id !== id));
       } catch (err) {
-        alert("Failed to delete course");
+        alert(err.response?.data?.message || "Failed to delete course");
       }
       setDeletingId(null);
     }
@@ -94,11 +84,10 @@ function CourseList({ showEdit = true }) {
                   )}
                   <button
                     onClick={() => handleDelete(course._id)}
-                    className={`bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded transition flex items-center gap-1 ${
-                      deletingId === course._id
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    }`}
+                    className={`bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded transition flex items-center gap-1 ${deletingId === course._id
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                      }`}
                     title="Delete"
                     disabled={deletingId === course._id}
                   >

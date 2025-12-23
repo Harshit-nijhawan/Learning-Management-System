@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { Trash2 } from "lucide-react";
-import axios from "axios";
-import { getToken } from "../utils/cookieUtils";
+import api from "../utils/api";
 
 function UserList({ type = "instructor", showDelete = true }) {
   const [users, setUsers] = React.useState([]);
@@ -10,9 +9,9 @@ function UserList({ type = "instructor", showDelete = true }) {
   useEffect(() => {
     const endpoint =
       type === "student"
-        ? "http://localhost:3001/api/protected/students"
-        : "http://localhost:3001/api/protected/instructors";
-    axios
+        ? "/api/protected/students"
+        : "/api/protected/instructors";
+    api
       .get(endpoint)
       .then((res) => setUsers(res.data))
       .catch((err) => console.log(err));
@@ -22,32 +21,8 @@ function UserList({ type = "instructor", showDelete = true }) {
     if (window.confirm(`Are you sure you want to delete ${userName}?`)) {
       setDeletingId(userId);
       try {
-        // Try multiple ways to get the token
-        const token =
-          getToken() ||
-          localStorage.getItem("token") ||
-          document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("token="))
-            ?.split("=")[1];
-
-        console.log(
-          "Token being used:",
-          token ? "Token found" : "No token found"
-        );
-
-        if (!token) {
-          alert("Authentication token not found. Please login again.");
-          return;
-        }
-
-        const response = await axios.delete(
-          `http://localhost:3001/api/protected/users/${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+        const response = await api.delete(
+          `/api/protected/users/${userId}`
         );
 
         if (response.status === 200) {
@@ -67,8 +42,7 @@ function UserList({ type = "instructor", showDelete = true }) {
           alert("Forbidden. You don't have permission to delete users.");
         } else {
           alert(
-            `Failed to delete user: ${
-              error.response?.data?.message || error.message
+            `Failed to delete user: ${error.response?.data?.message || error.message
             }`
           );
         }
@@ -109,11 +83,10 @@ function UserList({ type = "instructor", showDelete = true }) {
                 {showDelete && (
                   <button
                     onClick={() => handleDelete(user._id, user.name)}
-                    className={`bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded transition flex items-center gap-1 ${
-                      deletingId === user._id
+                    className={`bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded transition flex items-center gap-1 ${deletingId === user._id
                         ? "opacity-50 cursor-not-allowed"
                         : ""
-                    }`}
+                      }`}
                     title="Delete User"
                     disabled={deletingId === user._id}
                   >

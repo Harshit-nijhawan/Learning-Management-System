@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { getToken } from "../utils/cookieUtils";
+import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 
 function UserProfile() {
@@ -45,21 +45,8 @@ function UserProfile() {
         setLoading(true);
 
         // Fetch user profile
-        const userResponse = await fetch(
-          `http://localhost:3001/api/protected/user/${profileUserId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${getToken()}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!userResponse.ok) {
-          throw new Error("Failed to fetch user data");
-        }
-
-        const userData = await userResponse.json();
+        const userResponse = await api.get(`/protected/user/${profileUserId}`);
+        const userData = userResponse.data;
         setUser(userData);
 
         // If user is an instructor, fetch their courses
@@ -69,20 +56,11 @@ function UserProfile() {
             // Otherwise, fetch courses by instructor ID
             const coursesEndpoint =
               !id || id === currentUser?._id
-                ? "http://localhost:3001/api/my-courses"
-                : `http://localhost:3001/api/courses/instructor/${profileUserId}`;
+                ? "/my-courses"
+                : `/courses/instructor/${profileUserId}`;
 
-            const coursesResponse = await fetch(coursesEndpoint, {
-              headers: {
-                Authorization: `Bearer ${getToken()}`,
-                "Content-Type": "application/json",
-              },
-            });
-
-            if (coursesResponse.ok) {
-              const coursesData = await coursesResponse.json();
-              setUserCourses(coursesData);
-            }
+            const coursesResponse = await api.get(coursesEndpoint);
+            setUserCourses(coursesResponse.data);
           } catch (coursesError) {
             console.error("Error fetching instructor courses:", coursesError);
           }
@@ -117,6 +95,8 @@ function UserProfile() {
         return "bg-gray-100 text-gray-800 border border-gray-200";
     }
   };
+
+  const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
   return (
     <>
@@ -286,11 +266,12 @@ function UserProfile() {
                         <div className="relative h-36 overflow-hidden bg-gray-200">
                           {course.image && (
                             <img
-                              src={`http://localhost:3001/images/${course.image}`}
+                              src={`${baseURL}/images/${course.image}`}
                               alt={course.title}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
                           )}
+
                           <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold">
                             ${course.price}
                           </div>

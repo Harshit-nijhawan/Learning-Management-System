@@ -96,7 +96,7 @@ function InstructorCourseList() {
 
                 {course.image && (
                   <img
-                    src={`http://localhost:3001/images/${course.image}`}
+                    src={`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/images/${course.image}`}
                     alt={course.title}
                     className="w-24 h-24 object-cover rounded-lg ml-4 border border-gray-200"
                   />
@@ -115,8 +115,8 @@ function InstructorCourseList() {
                 <button
                   onClick={() => handleDelete(course._id)}
                   className={`bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded transition flex items-center gap-1 ${deletingId === course._id
-                      ? "opacity-50 cursor-not-allowed"
-                      : ""
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
                     }`}
                   title="Delete"
                   disabled={deletingId === course._id}

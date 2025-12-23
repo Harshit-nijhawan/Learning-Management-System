@@ -13,6 +13,7 @@ function ShowCourses() {
   });
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -57,7 +58,7 @@ function ShowCourses() {
     console.log("User:", user);
     console.log("Course ID:", course._id);
     console.log("Course Title:", course.title);
-    
+
     if (!user) {
       alert("Please login to add courses to cart");
       return;
@@ -91,7 +92,7 @@ function ShowCourses() {
       console.error("Error message:", error.message);
       console.error("Error status:", error.response?.status);
       console.error("Error data:", error.response?.data);
-      
+
       const errorMessage = error.response?.data?.message || "Failed to add course to cart";
       alert(`Error: ${errorMessage}`);
     }
@@ -157,7 +158,7 @@ function ShowCourses() {
                 <div className="relative w-full h-48 rounded-t-xl overflow-hidden">
                   {course.image ? (
                     <img
-                      src={`http://localhost:3001/images/${course.image}`}
+                      src={`${baseURL}/images/${course.image}`}
                       alt={course.title || "Course"}
                       className="w-full h-full object-cover"
                       onLoad={(e) => {

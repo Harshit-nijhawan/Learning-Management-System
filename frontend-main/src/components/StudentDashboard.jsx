@@ -190,8 +190,8 @@ function StudentDashboard() {
                       <h4 className="text-lg font-semibold mb-2">{dailyQuestion.title}</h4>
                       <div className="flex items-center gap-3 mb-4">
                         <span className={`px-3 py-1 rounded-full text-sm font-semibold ${dailyQuestion.difficulty === 'Easy' ? 'bg-green-500' :
-                            dailyQuestion.difficulty === 'Medium' ? 'bg-yellow-500' :
-                              'bg-red-500'
+                          dailyQuestion.difficulty === 'Medium' ? 'bg-yellow-500' :
+                            'bg-red-500'
                           } bg-opacity-20 backdrop-blur-sm`}>
                           {dailyQuestion.difficulty}
                         </span>
@@ -252,7 +252,7 @@ function StudentDashboard() {
                       <div className="relative h-40 overflow-hidden bg-gray-100">
                         {course.image && (
                           <img
-                            src={`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/images/${course.image}`}
+                            src={`${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://lms-backend-39hl.onrender.com" : "http://localhost:3001")}/images/${course.image}`}
                             alt={course.title}
                             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                           />

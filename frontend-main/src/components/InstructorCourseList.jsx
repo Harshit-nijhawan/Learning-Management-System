@@ -96,7 +96,7 @@ function InstructorCourseList() {
 
                 {course.image && (
                   <img
-                    src={`${import.meta.env.VITE_API_URL || "http://localhost:3001"}/images/${course.image}`}
+                    src={`${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://lms-backend-39hl.onrender.com" : "http://localhost:3001")}/images/${course.image}`}
                     alt={course.title}
                     className="w-24 h-24 object-cover rounded-lg ml-4 border border-gray-200"
                   />

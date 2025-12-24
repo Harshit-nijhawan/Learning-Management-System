@@ -2,7 +2,7 @@ import axios from "axios";
 import { deleteCookie, getToken } from "./cookieUtils";
 
 // Use environment variable or default to backend URL (without /api suffix)
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://lms-backend-39hl.onrender.com" : "http://localhost:3001");
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -33,7 +33,7 @@ api.interceptors.response.use(
       deleteCookie("user");
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      
+
       if (!window.location.pathname.includes("/login")) {
         window.location.href = "/login";
       }

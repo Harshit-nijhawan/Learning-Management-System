@@ -13,7 +13,7 @@ function ShowCourses() {
   });
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
-  const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+  const baseURL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "https://lms-backend-39hl.onrender.com" : "http://localhost:3001");
 
   useEffect(() => {
     const fetchData = async () => {

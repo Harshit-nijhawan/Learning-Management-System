@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -181,7 +183,11 @@ function ArticlePage() {
                 </h2>
 
                 {section.sectionType === 'text' && (
-                  <div className="prose max-w-none text-gray-700" dangerouslySetInnerHTML={{ __html: section.text }} />
+                  <div className="prose prose-lg prose-blue max-w-none text-gray-700 leading-relaxed">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {section.text}
+                    </ReactMarkdown>
+                  </div>
                 )}
 
                 {section.sectionType === 'code' && section.code && (
@@ -227,8 +233,8 @@ function ArticlePage() {
                     key={index}
                     onClick={() => setActiveTab(example.language)}
                     className={`px-4 py-2 font-medium ${activeTab === example.language
-                        ? 'border-b-2 border-blue-600 text-blue-600'
-                        : 'text-gray-600 hover:text-gray-900'
+                      ? 'border-b-2 border-blue-600 text-blue-600'
+                      : 'text-gray-600 hover:text-gray-900'
                       }`}
                   >
                     {example.language.toUpperCase()}
